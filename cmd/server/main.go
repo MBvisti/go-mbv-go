@@ -29,12 +29,6 @@ func run() error {
 		return err
 	}
 
-	//TODO: this fails if there are no migrations, should that change?
-	//err = db.RunMigrations("postgres://mbv:mbv@localhost/test?sslmode=disable")
-	//if err != nil {
-	//	return err
-	//}
-
 	// TODO: rename this service, only placeholder
 	placeholderService := api.NewUserService(db)
 
@@ -52,6 +46,9 @@ func run() error {
 
 func setupDatabase() (repository.Storage, error) {
 	connectionString := os.Getenv("DATABASE_URL")
+	if connectionString == "" {
+		return nil, errors.New("connectionString was not specified")
+	}
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		return nil, err
@@ -69,13 +66,13 @@ func setupDatabase() (repository.Storage, error) {
 func setupRouter(api api.API) (http.Router, error) {
 	// create router dependency
 	gin.SetMode(gin.ReleaseMode)
-	env := os.Getenv("ENVIRONMENT")
+	environment := os.Getenv("ENVIRONMENT")
 
-	if env == "" {
-		return nil, errors.New("env was not specified")
+	if environment == "" {
+		return nil, errors.New("environment was not specified")
 	}
 
-	if env == "DEVELOPMENT" {
+	if environment == "DEVELOPMENT" {
 		gin.SetMode(gin.DebugMode)
 	}
 	router := gin.Default()

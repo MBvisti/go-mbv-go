@@ -46,9 +46,6 @@ func run() error {
 
 func setupDatabase() (repository.Storage, error) {
 	connectionString := os.Getenv("DATABASE_URL")
-	if connectionString == "" {
-		return nil, errors.New("connectionString was not specified")
-	}
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		return nil, err
@@ -66,13 +63,11 @@ func setupDatabase() (repository.Storage, error) {
 func setupRouter(api api.API) (http.Router, error) {
 	// create router dependency
 	gin.SetMode(gin.ReleaseMode)
-	environment := os.Getenv("ENVIRONMENT")
-
-	if environment == "" {
-		return nil, errors.New("environment was not specified")
+	env := os.Getenv("ENVIRONMENT")
+	if env == "" {
+		return nil, errors.New("env was not specified")
 	}
-
-	if environment == "DEVELOPMENT" {
+	if env == "DEVELOPMENT" {
 		gin.SetMode(gin.DebugMode)
 	}
 	router := gin.Default()

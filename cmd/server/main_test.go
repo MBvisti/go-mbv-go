@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"go-mbv-go/pkg/api"
-	"go-mbv-go/pkg/repository"
 	"os"
 	"testing"
 )
@@ -35,30 +34,21 @@ func TestSetupRouter(t *testing.T) {
 	}
 }
 
-type mockStorage struct {}
-
-func (m *mockStorage) RunMigrations(connectionString string) error{
-	return nil
-}
-
 func TestSetupDatabase(t *testing.T) {
 	testCases := []struct {
 		name             string
 		connectionString      string
 		expectedError    error
-		expectedRes repository.Storage
 	}{
 		{
 			name: "should return an error because no connection string",
 			connectionString: "",
 			expectedError: errors.New("connectionString was not specified"),
-			expectedRes: &mockStorage{},
 		},
 		{
 			name: "should not return an error",
 			connectionString: "some-connection-string",
 			expectedError: nil,
-			expectedRes: &mockStorage{},
 		},
 	}
 
@@ -66,7 +56,7 @@ func TestSetupDatabase(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			os.Setenv("DATABASE_URL", test.connectionString)
 			_, err := setupDatabase()
-			
+
 			if err != test.expectedError {
 				t.Errorf("expected: %v, got: %v", err, test.expectedError)
 			}
